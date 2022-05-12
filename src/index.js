@@ -64,7 +64,7 @@ const fixation = {
   type: htmlKeyboardResponse,
   stimulus: '<div style="font-size: 60px;">+</div>',
   choices: 'NO_KEYS',
-  trial_duration: 100, // () => jsPsych.randomization.sampleWithoutReplacement([250, 500, 750, 1000, 1250, 1500, 1750, 2000], 1)[0],
+  trial_duration: () => jsPsych.randomization.sampleWithoutReplacement([250, 500, 750, 1000, 1250, 1500, 1750, 2000], 1)[0],
   data: {
     task: 'fixation'
   }
@@ -94,20 +94,4 @@ const debrief_block = {
 }
 
 timeline.push(debrief_block);
-
-// const blue_trial = {
-//   type: imageKeyboardResponse,
-//   stimulus: 'img/blue.png',
-//   choices: ['f', 'j']
-// };
-// 
-// 
-// const red_trial = {
-//   type: imageKeyboardResponse,
-//   stimulus: 'img/orange.png',
-//   choices: ['f', 'j']
-// };
-// 
-// timeline.push(blue_trial, red_trial);
-
 jsPsych.run(timeline);
