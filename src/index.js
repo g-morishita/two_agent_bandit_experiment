@@ -1,18 +1,14 @@
 import {initJsPsych} from 'jspsych';
 import htmlKeyboardResponse from '@jspsych/plugin-html-keyboard-response';
-import imageKeyboardResponse from '@jspsych/plugin-image-keyboard-response';
-import preload from '@jspsych/plugin-preload';
+import htmlButtonResponse from '@jspsych/plugin-html-button-response';
+// import imageKeyboardResponse from '@jspsych/plugin-image-keyboard-response';
+// import preload from '@jspsych/plugin-preload';
 
 const jsPsych = initJsPsych({
-  on_finish: () => jsPsych.data.displayData()
+  on_finish: () => jsPsych.data.displayData() // for debugging
 });
 
 const timeline = [];
-
-const preloaded_media = {
-  type: preload,
-  images: ['dist/img/blue.png', 'dist/img/red.png']
-};
 
 const welcome = {
   type: htmlKeyboardResponse,
@@ -42,56 +38,12 @@ const instructions = {
 
 timeline.push(instructions);
 
-const test_stimuli = [
-  { stimulus: "img/blue.png", correct_response: 'f' },
-  { stimulus: "img/orange.png", correct_response: 'j' }
-];
-
-const test = {
-  type: imageKeyboardResponse,
-  stimulus: jsPsych.timelineVariable('stimulus'),
-  choices: ['f', 'j'],
-  data: {
-    task: 'response',
-    correct_response: jsPsych.timelineVariable('correct_response')
-  },
-  on_finish: (data) => {
-    data.correct = jsPsych.pluginAPI.compareKeys(data.response, data.correct_response);
-  }
-};
-
-const fixation = {
-  type: htmlKeyboardResponse,
-  stimulus: '<div style="font-size: 60px;">+</div>',
-  choices: 'NO_KEYS',
-  trial_duration: () => jsPsych.randomization.sampleWithoutReplacement([250, 500, 750, 1000, 1250, 1500, 1750, 2000], 1)[0],
-  data: {
-    task: 'fixation'
-  }
-};
-
-const test_procedure = {
-  timeline: [fixation, test],
-  timeline_variables: test_stimuli,
-  randomize_order: true,
-  repetitions: 2
-};
-
-timeline.push(test_procedure)
-
-const debrief_block = {
-  type: htmlKeyboardResponse,
-  stimulus: () => {
-    const trials = jsPsych.data.get().filter({task: 'response'});
-    const correct_trials = trials.filter({correct: true});
-    const accuracy = Math.round(correct_trials.count() / trials.count() * 100);
-    const rt = Math.round(correct_trials.select('rt').mean());
-
-    return `<h1>You responded correctly on ${accuracy}% of the trials.</h1>
-            <h1>Your average response time was ${rt}ms.</h1>
-            <h1>Press any key to complete the experiment. Thank you!</h1>`;
-  }
+const trial = {
+  type: htmlButtonResponse,
+  stimulus: "",
+  choices: ["arm1", "arm2"]
 }
 
-timeline.push(debrief_block);
+timeline.push(trial)
+
 jsPsych.run(timeline);

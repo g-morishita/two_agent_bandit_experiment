@@ -14,6 +14,7 @@
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
+    "@jspsych/plugin-html-button-response": "^1.1.0",
     "@jspsych/plugin-html-keyboard-response": "^1.1.0",
     "@jspsych/plugin-image-keyboard-response": "^1.1.0",
     "@jspsych/plugin-preload": "^1.1.0",
