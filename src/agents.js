@@ -34,7 +34,6 @@ export class QLearner {
 
   takeAction() {
     const cumDist = this.#calulateCumDistWithSoftmax();
-    console.log(cumDist);
     const randomVal = Math.random();
     for (let i = 0; i < cumDist.length; i++) {
       if (randomVal < cumDist[i]) {
@@ -57,8 +56,6 @@ export class QLearner {
     if (chosenArm >= this.qValues.length) {
       throw `The index of the given arm exceeds. Given ${chosenArm}`;
     }
-    console.log(`before updating ${this._qValues[chosenArm]}`)
     this._qValues[chosenArm] += this._alpha * (reward - this._qValues[chosenArm]);
-    console.log(`after updating ${this._qValues[chosenArm]}`)
   }
 }
