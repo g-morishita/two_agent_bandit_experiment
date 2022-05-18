@@ -1,7 +1,7 @@
 export class QLearner {
   constructor(alpha, beta, numArms) {
-    this._alpha = alpha;
-    this._beta = beta;
+    this.alpha = alpha;
+    this.beta = beta;
     this._qValues = Array(numArms).fill(0);
   }
 
@@ -33,8 +33,32 @@ export class QLearner {
   }
 
   takeAction() {
-    const sum = this._qValues.reduce((prevVal, currVal) => prevVal + currVal, 0);
-    const choiceProbs = this._qValues.map((qVal) => qVal / sum);
-    return choiceProbs;
+    const cumDist = this.#calulateCumDistWithSoftmax();
+    console.log(cumDist);
+    const randomVal = Math.random();
+    for (let i = 0; i < cumDist.length; i++) {
+      if (randomVal < cumDist[i]) {
+        return i;
+      }
+    }
+    return cumDist.length - 1;
+  }
+
+  #calulateCumDistWithSoftmax() {
+    // const sum = this._qValues.reduce((prevVal, currVal) => prevVal + currVal, 0);
+    const expQ = this._qValues.map((qVal) => Math.exp(this.beta * qVal));
+    const sum = expQ.reduce((prevVal, currVal) => prevVal + currVal, 0);
+    let cumSum = 0;
+    const cumulativeDist = expQ.map((expQVal) => cumSum += expQVal / sum);
+    return cumulativeDist;
+  }
+
+  updateQValues(chosenArm, reward) {
+    if (chosenArm >= this.qValues.length) {
+      throw `The index of the given arm exceeds. Given ${chosenArm}`;
+    }
+    console.log(`before updating ${this._qValues[chosenArm]}`)
+    this._qValues[chosenArm] += this._alpha * (reward - this._qValues[chosenArm]);
+    console.log(`after updating ${this._qValues[chosenArm]}`)
   }
 }
