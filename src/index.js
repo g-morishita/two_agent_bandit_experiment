@@ -15,8 +15,10 @@ const agent = new QLearner(
   config.rewardDist.length
 );
 let rewardDist = config.rewardDist;
-const randomInt = Math.floor(Math.random());
-rewardDist[1], rewardDist[0] = rewardDist[randomInt], rewardDist[1 - randomInt];
+// Shuffule the reward distribution.
+const randomInt = Math.floor(Math.random() * 2);
+[rewardDist[1], rewardDist[0]] = [rewardDist[randomInt], rewardDist[1 - randomInt]];
+
 const bandit = new StableBernoulliBandit(rewardDist);
 
 
