@@ -1,5 +1,6 @@
 import {initJsPsych} from 'jspsych';
-import htmlKeyboardResponse from '@jspsych/plugin-html-keyboard-response'; import htmlButtonResponse from '@jspsych/plugin-html-button-response';
+import htmlKeyboardResponse from '@jspsych/plugin-html-keyboard-response';
+import htmlButtonResponse from '@jspsych/plugin-html-button-response';
 import jsPsychPreload from '@jspsych/plugin-preload';
 import {QLearner} from './agents.js'
 import {StableBernoulliBandit} from './bandits.js'
@@ -45,7 +46,7 @@ const instructions = {
     In each trial, you are going to choose one of them by clicking the image of the slot and know if you win or not later.</p>
     <p>Each of these two slots have a different probability of winning. Hence, you should "explore" and know which slot is btter.</p>
     <p>Note that the probabilies are fixed through the same session.</p>
-    <p>Also, there is another person who play the same slot machines. You can observe his/her result after each trial while the other also observe your own result.</p>
+    <p>Also, there is another person who play the same slot machines. You can observe his/her result after each trial while the other also observe your own result. However, you will not receive the rewards the other obtains.</p>
     <div style='width: 800px;'>
     <div style='float: left;'><img src='img/blue_slot_machine.png'></img>
     <div style='float: right;'><img src='img/red_slot_machine.png'></img>
