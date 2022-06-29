@@ -57,9 +57,9 @@ const instructions = {
     <p><b>Note that the reward probabilities are fixed through the same session.</b></p>
     <p>Plus, the choice with the image shown on the right has the known probability of 0.5. The reward probability of the choice on the left is unknown.</p>
     <p>Also, there is another person who does the task with the same choices. You can see his/her result after each trial while the other also observe your own result. However, you will not receive the rewards the other obtains.</p>
-    <div style='width: 900px; align-text: center;'>
-    <div style='float: left;'><img style="width: 300px;" src='img/${knownChoiceImage}'><p><b>This choice has a reward probability of 0.5.</b></p></img></div>
-    <div style='float: right;'><img style="width: 300px;" src='img/${unknownChoiceImage}'></img></div>
+    <div style='width: 900px; height: 450px; text-align: center;'>
+    <div style="width: 300px; float: left;"><img src='img/${knownChoiceImage}'><p><b>This choice has a reward probability of 0.5.</b></p></img></div>
+    <div style='width: 300px; float: right;'><img src='img/${unknownChoiceImage}'></img></div>
     </div>
   `,
   on_finish: (data) => {
@@ -80,15 +80,6 @@ const trial = {
     data.chosenImage = jsPsych.timelineVariable('choices')[chosenArm];
     data.isunknownArm = data.chosenImage === knownChoiceImage ? 0 : 1;
     data.reward = bandit.getReward(data.isunknownArm); // known arm index is 0.
-
-    // Agent's trial
-    const agentChosenArm = agent.takeAction();
-    const agentReward = bandit.getReward(chosenArm);
-    data.agentArm = agentChosenArm;
-    data.agentReward = agentReward;
-
-    // Agent's update based on your own experiment
-    agent.updateQValues(agentChosenArm, agentReward);
   }
 }
 
@@ -99,33 +90,17 @@ const ownResult = {
     const reward = data["reward"];
     let html = '';
     if (reward === 1) {
-      html += `<div style="width: 600px; text-align: center;"><img src="img/reward.png"></img></div>`
+      html += `<img style="width: 400px;" src="img/reward.png"></img>`
     } else {
-      html += `<div style="width: 600px; text-align: center;"><img src="img/no_reward.png"></img></div>`
+      html += `<img style="width: 400px;" src="img/no_reward.png"></img>`
     }
     return html;
   }
 };
 
-// TODO: We need to modify it here.
-const agentResult = {
-  type: htmlKeyboardResponse,
-  stimulus: () => {
-    const data =  jsPsych.data.get().last(2).values()[0];
-    const armColor = data["agentArm"] === 0 ? "red" : "blue";
-    const reward = data["agentReward"];
-    let html = `<p>The other chose <font color="${armColor}">${armColor}</font>.</p>`
-    if (reward === 1) {
-      html += `<div style="width: 600px; text-align: center;"><img src="img/reward.png"></img></div>`
-    } else {
-      html += `<div style="width: 600px; text-align: center;"><img src="img/no_reward.png"></img></div>`
-    }
-    return html;
-  }
-};
 
 const test_procedure = {
-  timeline: [trial, ownResult, agentResult],
+  timeline: [trial, ownResult],
   timeline_variables: choiceTimelineVariables,
 };
 
