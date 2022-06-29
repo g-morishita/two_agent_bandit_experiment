@@ -33,7 +33,7 @@ export class QLearner {
   }
 
   takeAction() {
-    const cumDist = this.#calulateCumDistWithSoftmax();
+    const cumDist = this.#calculateCumDistWithSoftmax();
     const randomVal = Math.random();
     for (let i = 0; i < cumDist.length; i++) {
       if (randomVal < cumDist[i]) {
@@ -43,7 +43,7 @@ export class QLearner {
     return cumDist.length - 1;
   }
 
-  #calulateCumDistWithSoftmax() {
+  #calculateCumDistWithSoftmax() {
     // const sum = this._qValues.reduce((prevVal, currVal) => prevVal + currVal, 0);
     const expQ = this._qValues.map((qVal) => Math.exp(this.beta * qVal));
     const sum = expQ.reduce((prevVal, currVal) => prevVal + currVal, 0);
