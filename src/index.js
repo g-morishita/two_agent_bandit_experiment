@@ -10,7 +10,7 @@ import "./style.css"
 
 const saveData = (data) => {
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', '/write_data'); // 'write_data.php' is the path to the php file described above.
+  xhr.open('POST', '/write_data');
   xhr.setRequestHeader('Content-Type', 'application/json');
   // xhr.send(JSON.stringify({test: "test"}));
   xhr.send(JSON.stringify({filedata: data}));
@@ -63,10 +63,6 @@ const preload = {
 };
 timeline.push(preload);
 
-// Choice images order.
-const choices = [{'choices': [choiceImages[0], choiceImages[1]]}, {'choices': [choiceImages[1], choiceImages[0]]}];
-const choiceTimelineVariables = jsPsych.randomization.repeat(choices, config.timeHorizon)
-
 const welcome = {
   type: htmlKeyboardResponse,
   stimulus: `<h1>Welcome to the experiment. Press any key to begin.</h1>`
@@ -97,13 +93,11 @@ timeline.push(instructions);
 const trial = {
   type: htmlButtonResponse,
   stimulus: '',
-  choices: jsPsych.timelineVariable('choices'),
+  choices: [choiceImages[0], choiceImages[1]],
   button_html: `<img style="width: 300px;" src='images/%choice%'></img>`,
   on_finish: (data) => {
-    const chosenArm = parseInt(data.response);
-    data.chosenImage = jsPsych.timelineVariable('choices')[chosenArm];
-    data.isunknownArm = data.chosenImage === knownChoiceImage ? 0 : 1;
-    data.reward = bandit.getReward(data.isunknownArm); // known arm index is 0.
+    data.chosenArm = parseInt(data.response);
+    data.reward = bandit.getReward(data.chosenArm); // known arm index is 0.
   }
 }
 
@@ -118,14 +112,14 @@ const ownResult = {
     } else {
       html += `<img style="width: 400px;" src="images/no_reward.png"></img>`
     }
-    html += "<p><b>Press any key to move on the next trial</b></p>"
+    html += "<p><b>Click the image to move on to the next trial or automatically move on in 3 seconds</b></p>"
     return html;
-  }
+  },
+  response_ends_trial: 3
 };
 
 const test_procedure = {
   timeline: [trial, ownResult],
-  timeline_variables: choiceTimelineVariables,
 };
 
 timeline.push(test_procedure);
