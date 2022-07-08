@@ -32,27 +32,19 @@ const download = (filename, text) => {
 const jsPsych = initJsPsych({
   on_finish: () => {jsPsych.data.displayData(); // for debugging
     saveData(jsPsych.data.get());
-    download("result.json", JSON.stringify(jsPsych.data.get()));
+    console.log(jsPsych.data.get());
+    const filename = jsPsych.data.get()["trials"][1].response.name + Date.now() + '.json'
+    download(filename, JSON.stringify(jsPsych.data.get()));
 }});
 
 const timeline = [];
 const choiceImageCandidates = ['choice1.png', 'choice2.png', 'choice3.png', 'choice4.png', 'choice5.png', 'choice6.png', 'choice7.png', 'choice8.png', 'choice9.png', 'choice10.png'];
-const choiceImages = jsPsych.randomization.sampleWithoutReplacement(choiceImageCandidates, 2);
-const knownChoiceImage = choiceImages[0];
-const unknownChoiceImage = choiceImages[1];
 
-// Randomly choose unknown reward
-const unknownReward = jsPsych.randomization.sampleWithoutReplacement(config.unknownRewardCandidates, 1)[0];
-const rewards = [config.knownReward, unknownReward];
-
-const bandit = new StableBernoulliBandit(rewards);
-
-// Instantiate an agent class.
-const agent = new QLearner(
-    config.agentAlpha,
-    config.agentBeta,
-    rewards.length
-);
+// Experiment setting randomly chosen.
+const choiceImages = jsPsych.randomization.sampleWithoutReplacement(choiceImageCandidates, 6);
+const knownChoicePositions = jsPsych.randomization.sampleWithReplacement([0, 1], 3); // 1 practice session and 2 sessions
+const unknownChoiceRewardProbs = jsPsych.randomization.sampleWithoutReplacement(config.unknownRewardCandidates, 1);
+unknownChoiceRewardProbs.concat(jsPsych.randomization.sampleWithoutReplacement(config.unknownRewardCandidates, 2));
 
 // Preload the images.
 const choiceImagesPath = choiceImages.map(x => 'images/' + x);
@@ -63,11 +55,13 @@ const preload = {
 };
 timeline.push(preload);
 
-const welcome = {
-  type: htmlKeyboardResponse,
-  stimulus: `<h1>Welcome to the experiment. Press any key to begin.</h1>`
+// Ask the username.
+const askName = {
+  type: jsPsychSurveyHtmlForm,
+  preamble: '<p>Welcome to the experiment. Please enter your name (which does not have to be your real name):</p>',
+  html: '<p><input name="name" type="text" /></p>'
 };
-timeline.push(welcome);
+timeline.push(askName);
 
 const instructions = {
   type: htmlKeyboardResponse,
@@ -75,33 +69,82 @@ const instructions = {
     <p>in this experiment, there are two choices with different shapes.
     In each trial, you choose one of them by clicking the image of the shape and know if you win or not.</p>
     <p>Each of these two choices have a different probability of winning. Hence, you should "explore" and know which choice is better.</p>
-    <p><b>Note that the reward probabilities are fixed through the same session.</b></p>
-    <p>Plus, the choice with the image shown on the <b>left</b> has the known probability of <b>0.5</b>. The reward probability of the choice on the right is unknown.</p>
-    <div style='width: 900px; height: 450px; text-align: center;'>
-    <div style="width: 300px; float: left;"><img src='images/${knownChoiceImage}'><p><b>This choice has a reward probability of 0.5.</b></p></img></div>
-    <div style='width: 300px; float: right;'><img src='images/${unknownChoiceImage}'></img></div>
-    </div>
   `,
   on_finish: (data) => {
-    data.unknownReward = unknownReward;
-    data.knownReward = config.knownReward;
+    data.randomizedKnownPositions = knownChoicePositions;
+    data.unknownChoiceRewardProbs = unknownChoiceRewardProbs;
     data.config = config;
   }
 };
 timeline.push(instructions);
 
-const trial = {
-  type: htmlButtonResponse,
-  stimulus: '',
-  choices: [choiceImages[0], choiceImages[1]],
-  button_html: `<img style="width: 300px;" src='images/%choice%'></img>`,
-  on_finish: (data) => {
-    data.chosenArm = parseInt(data.response);
-    data.reward = bandit.getReward(data.chosenArm); // known arm index is 0.
+const chooseChoiceImages = (currentSession, choiceImages) => {
+  const knownChoiceImage = choiceImages[currentSession];
+  const unknownChoiceImage = choiceImages[currentSession + 1];
+  let sessionChoiceImages = ["", ""];
+  sessionChoiceImages[knownChoicePositions[currentSession]] = knownChoiceImage;
+  sessionChoiceImages[1 - knownChoicePositions[currentSession]] = unknownChoiceImage;
+  return [knownChoiceImage, unknownChoiceImage, sessionChoiceImages];
+}
+
+const CreateNewSessionInstruction = (currentSession, knownChoiceImage, unknownChoiceImage, knownChoicePositions) => {
+  return {
+    type: htmlKeyboardResponse,
+    stimulus: () => {
+      let html = `<div style="margin-left: 20%; width: 50%; height: 50%; display: flex;">`
+      if (knownChoicePositions[currentSession] === 0) {
+        html += `<div style="margin-right: 50px;"><img src='images/${knownChoiceImage}'>`;
+        html += "<p style='font-size: 20px;'><b>The reward probability is fixed and 0.6.</b></p></div>";
+        html += `<div><img src='images/${unknownChoiceImage}'></div>`;
+      } else {
+        html += `<div style="margin-right: 50px;"><img src='images/${unknownChoiceImage}'></div>`;
+        html += `<div><img src='images/${knownChoiceImage}'>`;
+        html += `<p style="font-size: 20px;"><b>The reward probability is fixed and ${config.knownReward}.</b></p></div>`;
+      }
+      html += "</div>"
+      html += "<div style='text-align: center'>Press any key to start a session.</div>"
+      return html;
+    }
+  }
+};
+
+const createBanditTask = (currentSession, knownChoicePositions, unknownChoiceRewardProbs) => {
+  let rewardProbs = [0, 0];
+  rewardProbs[knownChoicePositions[currentSession]] = config.knownReward;
+  rewardProbs[1 - knownChoicePositions[currentSession]] = unknownChoiceRewardProbs[currentSession];
+  return new StableBernoulliBandit(rewardProbs);
+};
+
+const createTrial = (currentSession, knownChoicePositions, choiceImages) => {
+  return {
+    type: htmlButtonResponse,
+      stimulus: '',
+      choices: choiceImages,
+      button_html: `<img style="width: 300px;" src='images/%choice%'></img>`,
+      on_finish: (data) => {
+        data.session = currentSession;
+        data.IsKnownChoice = Number(data.response === knownChoicePositions[currentSession]);
+        data.reward = practiceBandit.getReward(data.chosenArm);
+    }
+  };
+};
+
+const endTrial = (currentSession) => {
+  let html = "";
+  if (currentSession === 0) {
+    html += `<div style="text-align: center; font-size: 35px;">The practice session is over. Press any key to move on to the trial.</div>`
+  } else if (currentSession == 1) {
+    html += `<div style="text-align: center; font-size: 35px;">The session ${currentSession}. Press any key to move on to the trial.</div>`
+  } else {
+    html += `<div style="text-align: center; font-size: 35px;">All the sessions are over. Thank you for participating in our experiment.</div>`
+  }
+  return {
+    type: htmlKeyboardResponse,
+    stimulus: html
   }
 }
 
-const ownResult = {
+const result = {
   type: htmlKeyboardResponse,
   stimulus: () => {
     const data =  jsPsych.data.get().last(1).values()[0];
@@ -112,24 +155,68 @@ const ownResult = {
     } else {
       html += `<img style="width: 400px;" src="images/no_reward.png"></img>`
     }
-    html += "<p><b>Click the image to move on to the next trial or automatically move on in 3 seconds</b></p>"
+    html += "<p><b>Automatically move on to the next trial in 2 seconds.</b></p>"
     return html;
   },
-  response_ends_trial: 3
+  trial_duration: 2000, // ms
+  response_ends_trial: false // Prevent participants from skipping the page.
 };
 
-const test_procedure = {
-  timeline: [trial, ownResult],
+// Practice Session
+let currentSession = 0
+const practiceBandit = createBanditTask(currentSession, knownChoicePositions, unknownChoiceRewardProbs);
+const [practiceKnownChoiceImage, practiceUnknownChoiceImage, practiceChoiceImages] = chooseChoiceImages(currentSession, choiceImages);
+
+const newSessionInstruction = CreateNewSessionInstruction(currentSession, practiceKnownChoiceImage, practiceUnknownChoiceImage, knownChoicePositions);
+timeline.push(newSessionInstruction);
+
+const practiceTrial = createTrial(currentSession, knownChoicePositions, practiceChoiceImages);
+
+const practiceProcedure = {
+  timeline: [practiceTrial, result],
+  repetitions: config.practiceTimeHorizon
+};
+timeline.push(practiceProcedure);
+
+const practiceEndTrial = endTrial(currentSession);
+timeline.push(practiceEndTrial);
+
+// Session 1
+currentSession++;
+const firstSessionBandit = createBanditTask(currentSession, knownChoicePositions, unknownChoiceRewardProbs);
+const [firstSessionKnownChoiceImage, firstSessionUnknownChoiceImage, firstSessionChoiceImages] = chooseChoiceImages(currentSession, choiceImages);
+
+const firstSessionInstruction = CreateNewSessionInstruction(currentSession, firstSessionKnownChoiceImage, firstSessionUnknownChoiceImage, knownChoicePositions);
+timeline.push(firstSessionInstruction);
+
+const firstSessionTrial = createTrial(currentSession, knownChoicePositions, firstSessionChoiceImages);
+const firstSessionProcedure = {
+  timeline: [firstSessionTrial, result],
+  repetitions: config.timeHorizon
 };
 
-timeline.push(test_procedure);
+timeline.push(firstSessionProcedure);
 
-const askName = {
-  type: jsPsychSurveyHtmlForm,
-  preamble: '<p>Your name (which does not have to be your real name) is:</p>',
-  html: '<p><input name="name" type="text" /></p>'
+const firstSessionEndTrial = endTrial(currentSession);
+timeline.push(firstSessionEndTrial);
+
+// Session 2
+currentSession++;
+const secondSessionBandit = createBanditTask(currentSession, knownChoicePositions, unknownChoiceRewardProbs);
+const [secondSessionKnownChoiceImage, secondSessionUnknownChoiceImage, secondSessionChoiceImages] = chooseChoiceImages(currentSession, choiceImages);
+
+const secondSessionInstruction = CreateNewSessionInstruction(currentSession, secondSessionKnownChoiceImage, secondSessionUnknownChoiceImage, knownChoicePositions);
+timeline.push(secondSessionInstruction);
+
+const secondSessionTrial = createTrial(currentSession, knownChoicePositions, secondSessionChoiceImages);
+const secondSessionProcedure = {
+  timeline: [secondSessionTrial, result],
+  repetitions: config.timeHorizon
 };
 
-timeline.push(askName);
+timeline.push(secondSessionProcedure);
+
+const secondSessionEndTrial = endTrial(currentSession);
+timeline.push(secondSessionEndTrial);
 
 jsPsych.run(timeline);
