@@ -3,6 +3,6 @@ export const config = {
   agentBeta: 2,
   knownReward: 0.6,
   unknownRewardCandidates: [0.7, 0.5],
-  timeHorizon: 2,
-  practiceTimeHorizon: 2
+  timeHorizon: 1,
+  practiceTimeHorizon: 1
 }
