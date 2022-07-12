@@ -17,23 +17,10 @@ const saveJsonData = (data) => {
   xhr.send(JSON.stringify({filedata: data}));
 };
 
-const uploadFile = (file, signedRequest) => {
-  const xhr = new XMLHttpRequest();
-  xhr.open('PUT', signedRequest);
-  xhr.onreadystatechange = () => {
-    if(xhr.readyState === 4) {
-      if(xhr.status !== 200) {
-        console.log(xhr);
-      }
-    }
-  };
-  xhr.send(file);
-};
-
 const putS3 = (file, fileName, fileType) => {
   const xhr = new XMLHttpRequest();
   xhr.open('POST', `/putS3`);
-  xhr.setRequestHeader('Content-Type', fileType);
+  xhr.setRequestHeader('Content-Type', "application/json");
   const sentData = {fileName: fileName, data: file};
   xhr.send(JSON.stringify(sentData));
 };
@@ -52,8 +39,7 @@ const download = (filename, text) => {
 };
 
 const preprocess = (username, jsonData) => {
-  let csvResult = "data:text/csv;charset=utf-8,";
-  csvResult += "participant,session,chosenArm,reward,knownArm,unknownReward,knownReward\r\n"
+  let csvResult = "participant,session,chosenArm,reward,knownArm,unknownReward,knownReward\r\n"
   for (let trial of jsonData["trials"]) {
     if (trial.hasOwnProperty("session")) {
       csvResult += username + ',';
@@ -62,7 +48,7 @@ const preprocess = (username, jsonData) => {
       csvResult += trial["reward"] + ',';
       csvResult += trial["IsKnownChoice"] + ',';
       csvResult += trial["unknownRewardProb"] + ',';
-      csvResult += trial["knownRewardProb"] + ',';
+      csvResult += trial["knownRewardProb"];
       csvResult += '\r\n';
     }
   }
@@ -77,8 +63,8 @@ const postProcess = () => {
   const csvResult = preprocess(username, result)
   download(jsonFileName, JSON.stringify(result));
   download(csvFileName, csvResult);
-  putS3(JSON.stringify(result), jsonFileName, "application/json");
-  // putS3(csvResult, csvFileName, "text/csv");
+  putS3(JSON.stringify(result), jsonFileName);
+  putS3(csvResult, csvFileName);
   // saveJsonData(jsPsych.data.get());
 };
 
@@ -94,7 +80,7 @@ let unknownChoiceRewardProbs = jsPsych.randomization.sampleWithoutReplacement(co
 unknownChoiceRewardProbs = unknownChoiceRewardProbs.concat(jsPsych.randomization.sampleWithoutReplacement(config.unknownRewardCandidates, 2));
 
 // Preload the images.
-const choiceImagesPath = [...Array(10).keys()].map(x => 'images/choice' + x + '.png');
+const choiceImagesPath = [...Array(9).keys()].map(x => 'images/choice' + (x+1) + '.png');
 const preload = {
   type: jsPsychPreload,
   auto_preload: true,
@@ -181,18 +167,18 @@ const CreateNewSessionInstruction = (currentSession, knownChoiceImage, unknownCh
   return {
     type: htmlKeyboardResponse,
     stimulus: () => {
-      let html = `<div style="margin-left: 20%; width: 50%; height: 50%; display: flex;">`
+      let html = `<div style="text-align: center;"><h1>Press any key to start a session.</h1>`;
+      html += `<div style="margin-left: 10%; display: flex;">`
       if (knownChoicePositions[currentSession] === 0) {
-        html += `<div style="margin-right: 50px;"><img src='images/${knownChoiceImage}'>`;
+        html += `<div style="margin-right: 20%;"><img style="width: 40%;" src='images/${knownChoiceImage}'>`;
         html += "<p style='font-size: 20px;'><b>The reward probability is fixed and 0.6.</b></p></div>";
-        html += `<div><img src='images/${unknownChoiceImage}'></div>`;
+        html += `<div><img style="width: 40%;" src='images/${unknownChoiceImage}'></div>`;
       } else {
         html += `<div style="margin-right: 50px;"><img src='images/${unknownChoiceImage}'></div>`;
         html += `<div><img src='images/${knownChoiceImage}'>`;
         html += `<p style="font-size: 20px;"><b>The reward probability is fixed and ${config.knownReward}.</b></p></div>`;
       }
-      html += "</div>"
-      html += "<div style='text-align: center'>Press any key to start a session.</div>"
+      html += "</div></div>"
       return html;
     }
   }
@@ -210,7 +196,7 @@ const createTrial = (currentSession, bandit, knownChoicePositions, choiceImages)
     type: htmlButtonResponse,
       stimulus: '',
       choices: choiceImages,
-      button_html: `<img style="width: 300px;" src='images/%choice%'></img>`,
+      button_html: `<img style="width: 50%;" src='images/%choice%' />`,
       on_finish: (data) => {
         data.session = currentSession;
         data.IsKnownChoice = (data.response === knownChoicePositions[currentSession]).toString();

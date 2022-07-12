@@ -1,5 +1,5 @@
 #jspsych-html-button-response-btngroup {
-    padding-top: 40px;
+    padding-top: 10%;
     text-align:center;
 }
 
@@ -8,10 +8,8 @@
     text-align:center;
 }
 
-#jspsych-html-button-response-button {
-    padding-top: 40px;
-    width: 300px;
-    text-align:center;
+.jspsych-html-button-response-button {
+    witdh: 40%;
 }
 
 #jspsych-survey-html-form-preamble {
