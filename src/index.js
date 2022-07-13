@@ -125,12 +125,12 @@ const instruction = {
         <h3>How do you make your choice?</h3>
         <div><p>First, you will be asked to type your name. Press "Continue" to enter the experiment. </p></div>
         <div><p>Then, you will be presented with a brief instruction again and two choices with different fractal images. You will be told that one choice is fixed at a reward probability of 0.6, which means that you have 60% chance to receive a reward by clicking this choice. The other choice is associated with a different reward probability which is unknown, and you need to explore whether it is higher or lower. Press any key again to start your experiment and then click on any image to make your choice.  </p></div>
-        <div "display: flex;"><img style="width: 30%;" src='images/choice3.png' /><img style="width: 30%;" src='images/choice10.png' /></div>
+        <div "display: flex;"><img style="width: 30%; margin-left: 15%; margin-right: 15%;" src='images/choice3.png' /><img style="width: 30%;" src='images/choice10.png' /></div>
         <!-- <div style="margin-bottom: 15px;"><p><b>The choice has a reward probability of 0.6</b></p> -->
         <div><p>After you made your choice, you will immediately know whether you received a reward or not. You will see an image like this to indicate that you won a reward</p></div>
-        <div style="text-align: center;"><img src="images/reward.png"></div>
+        <div style="text-align: center;"><img style="width: 40%;" src="images/reward.png"></div>
         <div><p>Similarly, if you didn't win a reward, you will see this image:</p></div>
-        <div style="text-align: center;"><img src="images/no_reward.png"></div>
+        <div style="text-align: center;"><img style="width: 40%;" src="images/no_reward.png"></div>
               <div><p><b>Note:</b></p></div>
       <ol>
         <li>You do not need to bring any material to the experiment and, you are not required to record your choice.</li>
@@ -168,15 +168,15 @@ const CreateNewSessionInstruction = (currentSession, knownChoiceImage, unknownCh
     type: htmlKeyboardResponse,
     stimulus: () => {
       let html = `<div style="text-align: center;"><h1>Press any key to start a session.</h1>`;
-      html += `<div style="margin-left: 10%; display: flex;">`
+      html += `<div style="margin-left: 15%; display: flex;">`
       if (knownChoicePositions[currentSession] === 0) {
-        html += `<div style="margin-right: 20%;"><img style="width: 40%;" src='images/${knownChoiceImage}'>`;
+        html += `<div><img style="width: 40%;" src='images/${knownChoiceImage}'>`;
         html += "<p style='font-size: 20px;'><b>The reward probability is fixed and 0.6.</b></p></div>";
         html += `<div><img style="width: 40%;" src='images/${unknownChoiceImage}'></div>`;
       } else {
         html += `<div style="margin-right: 50px;"><img src='images/${unknownChoiceImage}'></div>`;
         html += `<div><img src='images/${knownChoiceImage}'>`;
-        html += `<p style="font-size: 20px;"><b>The reward probability is fixed and ${config.knownReward}.</b></p></div>`;
+        html += `<p style="font-size: 30px;"><b>The reward probability is fixed and ${config.knownReward}.</b></p></div>`;
       }
       html += "</div></div>"
       return html;
@@ -196,7 +196,7 @@ const createTrial = (currentSession, bandit, knownChoicePositions, choiceImages)
     type: htmlButtonResponse,
       stimulus: '',
       choices: choiceImages,
-      button_html: `<img style="width: 50%;" src='images/%choice%' />`,
+      button_html: `<img src='images/%choice%' />`,
       on_finish: (data) => {
         data.session = currentSession;
         data.IsKnownChoice = (data.response === knownChoicePositions[currentSession]).toString();

@@ -1,15 +1,15 @@
+.jspsych-html-button-response-button {
+    width: 30%;
+    margin: 0 10% !important;
+}
+
 #jspsych-html-button-response-btngroup {
-    padding-top: 10%;
+    margin-top: 15%;
     text-align:center;
 }
 
 #jspsych-html-keyboard-response-stimulus {
-    padding-top: 40px;
     text-align:center;
-}
-
-.jspsych-html-button-response-button {
-    witdh: 40%;
 }
 
 #jspsych-survey-html-form-preamble {
@@ -22,7 +22,5 @@
 }
 
 img {
-    max-width: 100%;
-    height: auto;
-    padding: 35px;
+    width: 100%;
 }
