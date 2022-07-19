@@ -8,35 +8,7 @@ import jsPsychCallFunction from '@jspsych/plugin-call-function';
 import {StableBernoulliBandit} from './bandits.js'
 import {config} from './config.js'
 import "./style.css"
-
-const saveJsonData = (data) => {
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', '/write_data');
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  // xhr.send(JSON.stringify({test: "test"}));
-  xhr.send(JSON.stringify({filedata: data}));
-};
-
-const putS3 = (file, fileName, fileType) => {
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', `/putS3`);
-  xhr.setRequestHeader('Content-Type', "application/json");
-  const sentData = {fileName: fileName, data: file};
-  xhr.send(JSON.stringify(sentData));
-};
-
-const download = (filename, text) => {
-  const element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
-
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-};
+import {putS3, download} from "./helper";
 
 const preprocess = (username, jsonData) => {
   let csvResult = "participant,session,chosenArm,reward,knownArm,unknownReward,knownReward\r\n"
@@ -60,12 +32,11 @@ const postProcess = () => {
   const jsonFileName = username + Date.now() + '.json';
   const csvFileName = username + Date.now() + '.csv';
   const result = jsPsych.data.get();
-  const csvResult = preprocess(username, result)
+  const csvResult = preprocess(username, result);
   download(jsonFileName, JSON.stringify(result));
   download(csvFileName, csvResult);
   putS3(JSON.stringify(result), jsonFileName);
   putS3(csvResult, csvFileName);
-  // saveJsonData(jsPsych.data.get());
 };
 
 const jsPsych = initJsPsych();

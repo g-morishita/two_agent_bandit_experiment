@@ -7,4 +7,5 @@ module.exports = {
             },
         ],
     },
+    entry: './src/unknown.js'
 };
