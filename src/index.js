@@ -76,7 +76,6 @@ const choiceImageCandidates = ['choice1.png', 'choice2.png', 'choice3.png', 'cho
 // Experiment setting randomly chosen.
 const choiceImages = jsPsych.randomization.sampleWithoutReplacement(choiceImageCandidates, 6);
 const knownChoicePositions = jsPsych.randomization.sampleWithReplacement([0, 1], 3); // 1 practice session and 2 sessions
-console.log(knownChoicePositions);
 let unknownChoiceRewardProbs = jsPsych.randomization.sampleWithoutReplacement(config.unknownRewardCandidates, 1);
 unknownChoiceRewardProbs = unknownChoiceRewardProbs.concat(jsPsych.randomization.sampleWithoutReplacement(config.unknownRewardCandidates, 2));
 
