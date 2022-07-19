@@ -76,6 +76,7 @@ const choiceImageCandidates = ['choice1.png', 'choice2.png', 'choice3.png', 'cho
 // Experiment setting randomly chosen.
 const choiceImages = jsPsych.randomization.sampleWithoutReplacement(choiceImageCandidates, 6);
 const knownChoicePositions = jsPsych.randomization.sampleWithReplacement([0, 1], 3); // 1 practice session and 2 sessions
+console.log(knownChoicePositions);
 let unknownChoiceRewardProbs = jsPsych.randomization.sampleWithoutReplacement(config.unknownRewardCandidates, 1);
 unknownChoiceRewardProbs = unknownChoiceRewardProbs.concat(jsPsych.randomization.sampleWithoutReplacement(config.unknownRewardCandidates, 2));
 
@@ -117,14 +118,15 @@ const instruction = {
   `
     <div style="margin: 10% 10%;">
         <h1 style="text-align: ">Pilot Experiment: Make choices on your own</h1>
-        <div><p><b>Overview:</b> In this experiment, you will be given two choices with different fractal shapes repeatedly. In each trial, you choose one of the shapes by clicking the image, and you will know whether you win a reward or not.</p></div>
+        <div><p><b>Overview:</b> In this experiment, you will be given two choices with different fractal shapes repeatedly. In each trial, you choose one of the shapes by clicking the image, and you will know whether you win a reward or not. The goal is to obtain as many rewards as possible.</p></div>
         
-        <div><p>Each of the two choices is associated with a different probability of winning. The reward probabilities will be fixed through the same session and hence you should explore by yourself to know which choice is more rewarding and earn as much reward as possible.<br>The probability of one option is fixed and is known to be 0.6, so you don't have to explore that option. However, the probability of the other option is fixed but unknown and hence you should explore by yourself. </p></div>
+        <div><p>Each of the two choices is associated with a different probability of winning. The reward probabilities will be fixed through the same session and hence you should explore by yourself to know which choice is more rewarding and earn as much reward as possible.<br>The probability of one option is fixed and is known to be ${config.knownReward}, so you don't have to explore that option. However, the probability of the other option is fixed but unknown and hence you should explore by yourself. </p></div>
+    
         <div><p>You have in total of 30 minutes to complete two sessions, and you do not need to bring anything to the experiment.</p></div>
         
         <h3>How do you make your choice?</h3>
         <div><p>First, you will be asked to type your name. Press "Continue" to enter the experiment. </p></div>
-        <div><p>Then, you will be presented with a brief instruction again and two choices with different fractal images. You will be told that one choice is fixed at a reward probability of 0.6, which means that you have 60% chance to receive a reward by clicking this choice. The other choice is associated with a different reward probability which is unknown, and you need to explore whether it is higher or lower. Press any key again to start your experiment and then click on any image to make your choice.  </p></div>
+        <div><p>Then, you will be presented with a brief instruction again and two choices with different fractal images. You will be told that one choice is fixed at a reward probability of ${config.knownReward}, which means that you have ${config.knownReward * 100}% chance to receive a reward by clicking this choice. The other choice is associated with a different reward probability which is unknown, and you need to explore whether it is higher or lower. Press any key again to start your experiment and then click on any image to make your choice.  </p></div>
         <div "display: flex;"><img style="width: 30%; margin-left: 15%; margin-right: 15%;" src='images/choice3.png' /><img style="width: 30%;" src='images/choice10.png' /></div>
         <!-- <div style="margin-bottom: 15px;"><p><b>The choice has a reward probability of 0.6</b></p> -->
         <div><p>After you made your choice, you will immediately know whether you received a reward or not. You will see an image like this to indicate that you won a reward</p></div>
@@ -171,7 +173,7 @@ const CreateNewSessionInstruction = (currentSession, knownChoiceImage, unknownCh
       html += `<div style="margin-left: 15%; display: flex;">`
       if (knownChoicePositions[currentSession] === 0) {
         html += `<div><img style="width: 40%;" src='images/${knownChoiceImage}'>`;
-        html += "<p style='font-size: 20px;'><b>The reward probability is fixed and 0.6.</b></p></div>";
+        html += `<p style='font-size: 20px;'><b>The reward probability is fixed and ${config.knownReward}.</b></p></div>`;
         html += `<div><img style="width: 40%;" src='images/${unknownChoiceImage}'></div>`;
       } else {
         html += `<div style="margin-right: 50px;"><img src='images/${unknownChoiceImage}'></div>`;
@@ -196,10 +198,11 @@ const createTrial = (currentSession, bandit, knownChoicePositions, choiceImages)
     type: htmlButtonResponse,
       stimulus: '',
       choices: choiceImages,
-      button_html: `<img src='images/%choice%' />`,
+      button_html: `<img style="cursor: pointer;" src='images/%choice%' />`,
       on_finish: (data) => {
         data.session = currentSession;
         data.IsKnownChoice = (data.response === knownChoicePositions[currentSession]).toString();
+        data.knownChoicePosition = knownChoicePositions[currentSession];
         data.unknownRewardProb = bandit.meanRewards[1 - knownChoicePositions[currentSession]];
         data.knownRewardProb = bandit.meanRewards[knownChoicePositions[currentSession]];
         data.reward = bandit.getReward(data.response);
@@ -210,19 +213,18 @@ const createTrial = (currentSession, bandit, knownChoicePositions, choiceImages)
 const endTrial = (currentSession, isLast) => {
   let html = "";
   if (currentSession === 0) {
-    html += `<div style="text-align: center; font-size: 35px;">The practice session is over. Press any key or wait for 5 seconds.</div>`
+    html += `<div style="text-align: center; font-size: 35px;">This is the end of the practice session. Press any key or wait for 5 seconds.</div>`
   } else if (currentSession === 1) {
-    html += `<div style="text-align: center; font-size: 35px;">The session ${currentSession}. Press any key or wait for 5 seconds.</div>`
+    html += `<div style="text-align: center; font-size: 35px;">This is the end of session ${currentSession}. Press any key or wait for 5 seconds.</div>`
   } else {
-    html += `<div style="text-align: center; font-size: 35px;">All the sessions are over. Thank you for participating in our experiment.</div>`
+    html += `<div style="text-align: center; font-size: 35px;">This is the end of the experiment. Thank you for participating in our experiment.</div>`
   }
   if (isLast) {
 
   }
   return {
     type: htmlKeyboardResponse,
-    stimulus: html,
-    trial_duration: 5000, // ms
+    stimulus: html
   }
 }
 
@@ -246,6 +248,7 @@ const result = {
 // Practice Session
 let currentSession = 0
 const practiceBandit = createBanditTask(currentSession, knownChoicePositions, unknownChoiceRewardProbs);
+console.log(practiceBandit.meanRewards);
 const [practiceKnownChoiceImage, practiceUnknownChoiceImage, practiceChoiceImages] = chooseChoiceImages(currentSession, choiceImages);
 
 const newSessionInstruction = CreateNewSessionInstruction(currentSession, practiceKnownChoiceImage, practiceUnknownChoiceImage, knownChoicePositions);
@@ -265,6 +268,7 @@ timeline.push(practiceEndTrial);
 // Session 1
 currentSession++;
 const firstSessionBandit = createBanditTask(currentSession, knownChoicePositions, unknownChoiceRewardProbs);
+console.log(firstSessionBandit.meanRewards);
 const [firstSessionKnownChoiceImage, firstSessionUnknownChoiceImage, firstSessionChoiceImages] = chooseChoiceImages(currentSession, choiceImages);
 
 const firstSessionInstruction = CreateNewSessionInstruction(currentSession, firstSessionKnownChoiceImage, firstSessionUnknownChoiceImage, knownChoicePositions);
@@ -284,6 +288,7 @@ timeline.push(firstSessionEndTrial);
 // Session 2
 currentSession++;
 const secondSessionBandit = createBanditTask(currentSession, knownChoicePositions, unknownChoiceRewardProbs);
+console.log(secondSessionBandit.meanRewards);
 const [secondSessionKnownChoiceImage, secondSessionUnknownChoiceImage, secondSessionChoiceImages] = chooseChoiceImages(currentSession, choiceImages);
 
 const secondSessionInstruction = CreateNewSessionInstruction(currentSession, secondSessionKnownChoiceImage, secondSessionUnknownChoiceImage, knownChoicePositions);
