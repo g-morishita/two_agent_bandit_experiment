@@ -10,7 +10,8 @@ export const config = {
 export const unknown_config = {
   agentAlpha: 0.1,
   agentBeta: 2,
-  unknownRewardCandidates: [0.7, 0.5, 0.3, 0.8],
-  timeHorizon: 3,
-  practiceTimeHorizon: 3
+  unknownRewardCandidates: [0.7],
+  gaps: [0.2],
+  timeHorizon: 70,
+  practiceTimeHorizon: 1
 }
