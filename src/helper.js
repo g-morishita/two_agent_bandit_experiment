@@ -26,3 +26,5 @@ export const download = (filename, text) => {
 
     document.body.removeChild(element);
 };
+
+export const choiceImageCandidates = [...Array(16).keys()].map(x => 'choice' + (x+1) + '.png');

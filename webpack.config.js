@@ -7,5 +7,5 @@ module.exports = {
             },
         ],
     },
-    entry: './src/unknown.js'
+    entry: './src/two_agents.js'
 };

@@ -1,14 +1,14 @@
 import {initJsPsych} from 'jspsych';
 import htmlKeyboardResponse from '@jspsych/plugin-html-keyboard-response';
 import htmlButtonResponse from '@jspsych/plugin-html-button-response';
-import jsPsychSurveyHtmlForm from '@jspsych/plugin-survey-html-form';
 import jsPsychPreload from '@jspsych/plugin-preload';
 import jsPsychInstructions from '@jspsych/plugin-instructions';
 import jsPsychCallFunction from '@jspsych/plugin-call-function';
 import {StableBernoulliBandit} from './bandits.js'
 import {unknown_config} from './config.js'
 import "./style.css"
-import {putS3, download} from "./helper";
+import {putS3, download, choiceImageCandidates} from "./helper";
+import {askName} from "./components"
 
 const preprocess = (username, jsonData) => {
   let csvResult = "participant,session,chosenArm,reward,meanRewardChoice1,meanRewardChoice2\r\n"
@@ -41,7 +41,7 @@ const postProcess = () => {
 const jsPsych = initJsPsych();
 
 const timeline = [];
-const choiceImageCandidates = ['choice1.png', 'choice2.png', 'choice3.png', 'choice4.png', 'choice5.png', 'choice6.png', 'choice7.png', 'choice8.png', 'choice9.png', 'choice10.png'];
+
 
 // Experiment setting randomly chosen.
 const choiceImages = jsPsych.randomization.sampleWithoutReplacement(choiceImageCandidates, 6);
@@ -145,12 +145,6 @@ const instruction = {
 }
 timeline.push(instruction);
 
-// Ask the username.
-const askName = {
-  type: jsPsychSurveyHtmlForm,
-  preamble: '<p>Please enter your name (which does not have to be your real name):</p>',
-  html: '<p><input name="name" type="text" /></p>'
-};
 timeline.push(askName);
 
 const newSession = {
