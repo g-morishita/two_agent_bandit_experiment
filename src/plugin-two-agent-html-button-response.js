@@ -1,16 +1,6 @@
 import {ParameterType} from "jspsych";
 import {StableBernoulliBandit} from './bandits.js'
 
-const sleep = (milliseconds) => {
-    console.log("invoke sleep");
-    const date = Date.now();
-    let currentDate = null;
-    do {
-        currentDate = Date.now();
-    } while (currentDate - date < milliseconds);
-    console.log("finishing sleep");
-};
-
 const info = {
     name: "plugin-two-agent-html-button-response",
     parameters: {
@@ -22,6 +12,10 @@ const info = {
             default: undefined
         },
         partnerChoice: {
+            type: ParameterType.FUNCTION,
+            default: null
+        },
+        order: {
             type: ParameterType.INT,
             default: undefined
         }
@@ -62,15 +56,22 @@ export class PluginTwoAgentHtmlButtonResponse {
         this.jsPsych.finishTrial(trial_data);
     };
 
-    after_response_right() {
+    after_response(event) {
+        const chosenSide = event.currentTarget.choice;
+        let notChosenSide;
+        if (chosenSide === "right") {
+            notChosenSide = "left";
+        } else {
+            notChosenSide = "right";
+        }
         const end_time = performance.now();
         const rt = Math.round(end_time - this.start_time);
         const choice = 1;
         this.response.choice = choice;
         this.response.rt = rt;
 
-        let rightImg = document.getElementById("your-right-choice");
-        rightImg.style.border = "10px solid black";
+        let chosenImg = document.getElementById(`your-${chosenSide}-choice`);
+        chosenImg.style.border = "10px solid black";
         // observe the reward
         const reward = this.bandit.getReward(choice);
         this.response.reward = reward;
@@ -80,88 +81,48 @@ export class PluginTwoAgentHtmlButtonResponse {
         if (reward === 1) {
             rewardImg.src = "images/reward.png";
         }
-        rightImg.insertAdjacentElement('afterend', rewardImg);
+        chosenImg.insertAdjacentElement('afterend', rewardImg);
 
         // disable all the buttons
-        let leftImg = document.getElementById("your-left-choice");
-        rightImg.removeEventListener("click", this.after_response_right);
-        leftImg.removeEventListener("click", this.after_response_left);
+        let notChosenImg = document.getElementById(`your-${notChosenSide}-choice`);
+        notChosenImg.removeEventListener("click", this.after_response);
+        chosenImg.removeEventListener("click", this.after_response);
 
         // observe the partner action and reward
-        setTimeout(() => {
-            const choice = this.response.partnerResponse;
-            const reward = this.response.partnerReward;
-            let img = null;
-            if (choice === 0) {
-                img = document.getElementById("partner-left-choice");
-            } else {
-                img = document.getElementById("partner-right-choice");
-            }
-            img.style.border = "10px solid black";
+        if (this.response.partnerResponse !== null) {
+            const waitingTime = this.jsPsych.randomization.sampleWithoutReplacement([1000, 1000, 1000, 1000, 1500, 2000, 2500, 3000], 1)[0]
+            setTimeout(() => {
+                const choice = this.response.partnerResponse;
+                const reward = this.response.partnerReward;
+                let img = null;
+                if (choice === 0) {
+                    img = document.getElementById("partner-left-choice");
+                } else {
+                    img = document.getElementById("partner-right-choice");
+                }
+                img.style.border = "10px solid black";
 
-            const rewardImg = document.createElement("img");
-            rewardImg.src = "images/no_reward.png";
-            if (reward === 1) {
-                rewardImg.src = "images/reward.png";
-            }
-            img.insertAdjacentElement('afterend', rewardImg);
-        }, 1500)
-
-        setTimeout(this.end_trial, 3000);
-    };
-
-    after_response_left() {
-        const end_time = performance.now();
-        const rt = Math.round(end_time - this.start_time);
-        const choice = 0;
-        this.response.choice = choice;
-        this.response.rt = rt;
-
-        let leftImg = document.getElementById("your-left-choice");
-        leftImg.style.border = "10px solid black";
-
-        // observe the reward
-        const reward = this.bandit.getReward(choice);
-        this.response.reward = reward;
-        const rewardImg = document.createElement("img");
-        rewardImg.src = "images/no_reward.png";
-        if (reward === 1) {
-            rewardImg.src = "images/reward.png";
+                const rewardImg = document.createElement("img");
+                rewardImg.src = "images/no_reward.png";
+                if (reward === 1) {
+                    rewardImg.src = "images/reward.png";
+                }
+                img.insertAdjacentElement('afterend', rewardImg);
+            }, waitingTime);
+            setTimeout(this.end_trial, waitingTime + 1000);
+        } else {
+            setTimeout(this.end_trial,  1000);
         }
-        leftImg.insertAdjacentElement('afterend', rewardImg);
-
-        // disable all the buttons
-        let rightImg = document.getElementById("your-right-choice");
-        rightImg.removeEventListener("click", this.after_response_right);
-        leftImg.removeEventListener("click", this.after_response_left);
-
-        // observe the partner action and reward
-        setTimeout(() => {
-            const choice = this.response.partnerResponse;
-            const reward = this.response.partnerReward;
-            let img = null;
-            if (choice === 0) {
-                img = document.getElementById("partner-left-choice");
-            } else {
-                img = document.getElementById("partner-right-choice");
-            }
-            img.style.border = "10px solid black";
-
-            const rewardImg = document.createElement("img");
-            rewardImg.src = "images/no_reward.png";
-            if (reward === 1) {
-                rewardImg.src = "images/reward.png";
-            }
-            img.insertAdjacentElement('afterend', rewardImg);
-        }, 1500)
-
-        setTimeout(this.end_trial, 3000);
     };
 
     trial(display_element, trial) {
         // create the user interface
         this.bandit = new StableBernoulliBandit(trial.rewardMean);
-        this.response.partnerResponse = trial.partnerChoice;
+        if (trial.partnerChoice === null) {
+            this.response.partnerResponse = null;
+        } else {
+            this.response.partnerResponse = trial.partnerChoice();
+        }
         this.response.partnerReward = this.bandit.getReward(this.response.partnerResponse);
         this.display_element = display_element;
         let html = `<style>
@@ -205,7 +166,7 @@ export class PluginTwoAgentHtmlButtonResponse {
     
             img {
                 width: 95%;
-                height: 30%;
+                height: 50%;
                 min-width: 200px;
                 max-width: 300px;
             }
@@ -216,29 +177,56 @@ export class PluginTwoAgentHtmlButtonResponse {
                 height: 600px;
             }
             </style>
-            <div id="header">
+        <div id="header">`;
+        // Choose images
+        let yourLeftImg, partnerLeftImg;
+        let yourRightImg, partnerRightImg;
+        let partnerColor = "black";
+        yourLeftImg = partnerLeftImg = trial.choiceImages[0];
+        yourRightImg = partnerRightImg = trial.choiceImages[1];
+        if (this.response.partnerResponse === null) {
+            partnerLeftImg = partnerRightImg = "images/transparent.png";
+            partnerColor = "white";
+        }
+        if (trial.order === 0) {
+            html += `                
                 <div id="partner">
-                    <div class="choice-block"><img id="partner-left-choice" src="${trial.choiceImages[0]}"></div>
+                    <div class="choice-block"><img id="partner-left-choice" src="${partnerLeftImg}"></div>
                     <p class="identifier">PARTNER</p>
-                    <div class="choice-block"><img id="partner-right-choice" src="${trial.choiceImages[1]}"></div>
+                    <div class="choice-block"><img id="partner-right-choice" src="${partnerRightImg}"></div>
                 </div>
                 <div id="separation"></div>
                 <div id="you">
-                    <div class="choice-block"><img id="your-left-choice" src="${trial.choiceImages[0]}"></div>
+                    <div class="choice-block"><img id="your-left-choice" src="${yourLeftImg}"></div>
                     <p class="identifier">YOU</p>
-                    <div class="choice-block"><img id="your-right-choice" src="${trial.choiceImages[1]}"></div>
+                    <div class="choice-block"><img id="your-right-choice" src="${yourRightImg}"></div>
+                </div>`;
+        } else {
+            html += `
+                <div id="you">
+                    <div class="choice-block"><img id="your-left-choice" src="${yourLeftImg}"></div>
+                    <p class="identifier">YOU</p>
+                    <div class="choice-block"><img id="your-right-choice" src="${yourRightImg}"></div>
                 </div>
-            </div>
-        `;
+                <div id="separation"></div>
+                <div id="partner">
+                    <div class="choice-block"><img id="partner-left-choice" src="${partnerLeftImg}"></div>
+                    <p class="identifier" style="color: ${partnerColor};">PARTNER</p>
+                    <div class="choice-block"><img id="partner-right-choice" src="${partnerRightImg}"></div>
+                </div>`;
+        }
+        html += `</div>`;
         display_element.innerHTML = html;
 
         this.start_time = performance.now();
 
         // add event listeners to buttons
         const rightImg = display_element.querySelector("#your-right-choice");
-        rightImg.addEventListener("click",  this.after_response_right);
+        rightImg.addEventListener("click",  this.after_response);
+        rightImg.choice = "right";
 
         const leftImg = display_element.querySelector("#your-left-choice");
-        leftImg.addEventListener("click", this.after_response_left);
+        leftImg.addEventListener("click", this.after_response);
+        leftImg.choice = "left";
     };
 }
