@@ -48,7 +48,9 @@ export class PluginTwoAgentHtmlButtonResponse {
             response: this.response.choice,
             reward: this.response.reward,
             partnerResponse: this.response.partnerResponse,
-            partnerReward: this.response.partnerReward
+            partnerReward: this.response.partnerReward,
+            leftRewardProb: this.bandit.meanRewards[0],
+            rightRewardProb: this.bandit.meanRewards[1],
         };
         // end trial
         this.display_element.innerHTML = "";

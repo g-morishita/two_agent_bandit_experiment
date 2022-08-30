@@ -23,8 +23,7 @@ const createSingleAgentSession = (numTrials) => {
         partnerChoice: null,
         order: jsPsych.randomization.sampleWithoutReplacement([0, 1], 1)[0],
         on_finish: (data) => {
-            // update the agent Q values
-            agent.updateQValues(data.partnerResponse, data.partnerReward);
+            data.session = currentSession;
         }
     };
 
@@ -58,6 +57,7 @@ const createTwoAgentSession = (numTrials) => {
         order: jsPsych.randomization.sampleWithoutReplacement([0, 1], 1)[0],
         on_finish: (data) => {
             // update the agent Q values
+            data.session = currentSession;
             agent.updateQValues(data.partnerResponse, data.partnerReward);
         }
     };
