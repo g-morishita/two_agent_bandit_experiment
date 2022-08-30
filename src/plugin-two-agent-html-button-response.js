@@ -61,19 +61,23 @@ export class PluginTwoAgentHtmlButtonResponse {
     after_response(event) {
         const chosenSide = event.currentTarget.choice;
         let notChosenSide;
+        let choice;
         if (chosenSide === "right") {
+            choice = 1;
             notChosenSide = "left";
         } else {
+            choice = 0;
             notChosenSide = "right";
         }
         const end_time = performance.now();
         const rt = Math.round(end_time - this.start_time);
-        const choice = 1;
         this.response.choice = choice;
         this.response.rt = rt;
 
+        // put a black frame to a chosen image.
         let chosenImg = document.getElementById(`your-${chosenSide}-choice`);
         chosenImg.style.border = "10px solid black";
+
         // observe the reward
         const reward = this.bandit.getReward(choice);
         this.response.reward = reward;
@@ -119,6 +123,8 @@ export class PluginTwoAgentHtmlButtonResponse {
 
     trial(display_element, trial) {
         // create the user interface
+        console.log("trial.rewardMean");
+        console.log(trial.rewardMean);
         this.bandit = new StableBernoulliBandit(trial.rewardMean);
         if (trial.partnerChoice === null) {
             this.response.partnerResponse = null;
