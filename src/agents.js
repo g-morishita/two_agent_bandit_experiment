@@ -2,7 +2,7 @@ export class QLearner {
   constructor(alpha, beta, numArms) {
     this.alpha = alpha;
     this.beta = beta;
-    this._qValues = Array(numArms).fill(0);
+    this._qValues = Array(numArms).fill(0.5);
   }
 
   get alpha() {

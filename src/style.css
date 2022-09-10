@@ -3,6 +3,10 @@
     margin: 0 10% !important;
 }
 
+.instruction {
+    margin: 5%;
+}
+
 #jspsych-html-button-response-btngroup {
     margin-top: 15%;
     text-align:center;

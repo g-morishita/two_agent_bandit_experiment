@@ -25,6 +25,8 @@
     "@jspsych/plugin-instructions": "^1.1.1",
     "@jspsych/plugin-preload": "^1.1.0",
     "@jspsych/plugin-survey-html-form": "^1.0.1",
-    "jspsych": "^7.2.1"
+    "file-saver": "^2.0.5",
+    "jspsych": "^7.2.1",
+    "jszip": "^3.10.1"
   }
 }

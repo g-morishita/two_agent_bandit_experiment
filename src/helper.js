@@ -6,7 +6,7 @@ export const saveJsonData = (data) => {
     xhr.send(JSON.stringify({filedata: data}));
 };
 
-export const putS3 = (file, fileName, fileType) => {
+export const putS3 = (file, fileName) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `/putS3`);
     xhr.setRequestHeader('Content-Type', "application/json");

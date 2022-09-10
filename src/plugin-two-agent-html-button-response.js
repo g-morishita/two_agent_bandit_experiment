@@ -51,6 +51,7 @@ export class PluginTwoAgentHtmlButtonResponse {
             partnerReward: this.response.partnerReward,
             leftRewardProb: this.bandit.meanRewards[0],
             rightRewardProb: this.bandit.meanRewards[1],
+            order: this.order,
         };
         // end trial
         this.display_element.innerHTML = "";
@@ -96,7 +97,7 @@ export class PluginTwoAgentHtmlButtonResponse {
 
         // observe the partner action and reward
         if (this.response.partnerResponse !== null) {
-            const waitingTime = this.jsPsych.randomization.sampleWithoutReplacement([1000, 1000, 1000, 1000, 1500, 2000, 2500, 3000], 1)[0]
+            const waitingTime = this.jsPsych.randomization.sampleWithoutReplacement([500, 500, 500, 1000, 1000, 1000, 1000, 1500], 1)[0]
             setTimeout(() => {
                 const choice = this.response.partnerResponse;
                 const reward = this.response.partnerReward;
@@ -114,24 +115,24 @@ export class PluginTwoAgentHtmlButtonResponse {
                     rewardImg.src = "images/reward.png";
                 }
                 img.insertAdjacentElement('afterend', rewardImg);
-            }, waitingTime);
-            setTimeout(this.end_trial, waitingTime + 1000);
+            }, waitingTime + 2000);
+            setTimeout(this.end_trial, waitingTime + 3500);
         } else {
-            setTimeout(this.end_trial,  1000);
+            setTimeout(this.end_trial,  1500);
         }
     };
 
     trial(display_element, trial) {
         // create the user interface
-        console.log("trial.rewardMean");
-        console.log(trial.rewardMean);
         this.bandit = new StableBernoulliBandit(trial.rewardMean);
+        this.response.partnerReward = null;
+        this.order = trial.order;
         if (trial.partnerChoice === null) {
             this.response.partnerResponse = null;
         } else {
             this.response.partnerResponse = trial.partnerChoice();
+            this.response.partnerReward = this.bandit.getReward(this.response.partnerResponse);
         }
-        this.response.partnerReward = this.bandit.getReward(this.response.partnerResponse);
         this.display_element = display_element;
         let html = `<style>
             * {
@@ -200,7 +201,7 @@ export class PluginTwoAgentHtmlButtonResponse {
             html += `                
                 <div id="partner">
                     <div class="choice-block"><img id="partner-left-choice" src="${partnerLeftImg}"></div>
-                    <p class="identifier">PARTNER</p>
+                    <p class="identifier" style="color: ${partnerColor};">PARTNER</p>
                     <div class="choice-block"><img id="partner-right-choice" src="${partnerRightImg}"></div>
                 </div>
                 <div id="separation"></div>
