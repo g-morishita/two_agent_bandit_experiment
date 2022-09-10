@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@jspsych/plugin-call-function": "^1.1.1",
+    "@jspsych/plugin-fullscreen": "^1.1.1",
     "@jspsych/plugin-html-button-response": "^1.1.1",
     "@jspsych/plugin-html-keyboard-response": "^1.1.0",
     "@jspsych/plugin-image-keyboard-response": "^1.1.0",
