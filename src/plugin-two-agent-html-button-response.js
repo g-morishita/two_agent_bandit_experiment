@@ -176,7 +176,7 @@ export class PluginTwoAgentHtmlButtonResponse {
             }
     
             .choice-block {
-                max-width: 280px;
+                max-width: 250px;
             }
     
             img {
