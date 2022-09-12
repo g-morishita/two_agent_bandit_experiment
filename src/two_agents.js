@@ -265,7 +265,8 @@ const end = {
     type: jsPsychInstructions,
     pages: [`<div style="font-size: 30px; text-align: center; margin-top: 50px;">
         <p>The experiment has finished. Thank you for participating in our experiment.</p>
-        <p>You can go out of the room and let the experimenter know that you finished all the sessions. </p>
+        <p>Until all the participants finish the tasks, please stay in the booth.</p>
+        <p>The experimenters will let you know when all the participants finish all the tasks.</p>
         </div>`]
 }
 timeline.push(end);
