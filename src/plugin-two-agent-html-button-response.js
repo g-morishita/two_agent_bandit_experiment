@@ -144,8 +144,6 @@ export class PluginTwoAgentHtmlButtonResponse {
             .identifier {
                 font-size: 30px;
                 text-align: center;
-                margin-left: 10px;
-                margin-right: 10px;
             }
 
             #header {
