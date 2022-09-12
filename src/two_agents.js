@@ -1,5 +1,4 @@
 import {initJsPsych} from 'jspsych';
-import jsPsychHtmlKeyboardResponse from '@jspsych/plugin-image-keyboard-response';
 import jsPsychHtmlButtonResponse from '@jspsych/plugin-html-button-response';
 import fullscreen from '@jspsych/plugin-fullscreen';
 import jsPsychPreload from '@jspsych/plugin-preload';
