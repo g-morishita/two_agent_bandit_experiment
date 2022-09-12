@@ -144,8 +144,8 @@ export class PluginTwoAgentHtmlButtonResponse {
             .identifier {
                 font-size: 30px;
                 text-align: center;
-                margin-left: 15px;
-                margin-right: 15px;
+                margin-left: 10px;
+                margin-right: 10px;
             }
 
             #header {
@@ -176,7 +176,7 @@ export class PluginTwoAgentHtmlButtonResponse {
             }
     
             .choice-block {
-                max-width: 240px;
+                max-width: 260px;
             }
     
             img {
