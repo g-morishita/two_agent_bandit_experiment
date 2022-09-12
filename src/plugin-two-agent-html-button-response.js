@@ -88,6 +88,7 @@ export class PluginTwoAgentHtmlButtonResponse {
         if (reward === 1) {
             rewardImg.src = "images/reward.png";
         }
+        rewardImg.style.margin = "30px";
         chosenImg.insertAdjacentElement('afterend', rewardImg);
 
         // disable all the buttons
@@ -164,18 +165,22 @@ export class PluginTwoAgentHtmlButtonResponse {
             #your-right-choice {
                 cursor: pointer;
             }
-            
+         
             #your-left-choice {
                 cursor: pointer;
             }
+            
+            .choice-img {
+                margin: 30px; 
+            }
     
             .choice-block {
-                max-width: 280px;
+                max-width: 350px;
             }
     
             img {
-                width: 95%;
-                height: 50%;
+                width: 40%;
+                height: 40%;
                 min-width: 200px;
                 max-width: 300px;
             }
@@ -200,28 +205,28 @@ export class PluginTwoAgentHtmlButtonResponse {
         if (trial.order === 0) {
             html += `                
                 <div id="partner">
-                    <div class="choice-block"><img id="partner-left-choice" src="${partnerLeftImg}"></div>
+                    <div class="choice-block"><img class="choice-img" id="partner-left-choice" src="${partnerLeftImg}"></div>
                     <p class="identifier" style="color: ${partnerColor};">PARTNER</p>
-                    <div class="choice-block"><img id="partner-right-choice" src="${partnerRightImg}"></div>
+                    <div class="choice-block"><img class="choice-img" id="partner-right-choice" src="${partnerRightImg}"></div>
                 </div>
                 <div id="separation"></div>
                 <div id="you">
-                    <div class="choice-block"><img id="your-left-choice" src="${yourLeftImg}"></div>
+                    <div class="choice-block"><img class="choice-img" id="your-left-choice" src="${yourLeftImg}"></div>
                     <p class="identifier">YOU</p>
-                    <div class="choice-block"><img id="your-right-choice" src="${yourRightImg}"></div>
+                    <div class="choice-block"><img class="choice-img" id="your-right-choice" src="${yourRightImg}"></div>
                 </div>`;
         } else {
             html += `
                 <div id="you">
-                    <div class="choice-block"><img id="your-left-choice" src="${yourLeftImg}"></div>
+                    <div class="choice-block"><img class="choice-img" id="your-left-choice" src="${yourLeftImg}"></div>
                     <p class="identifier">YOU</p>
-                    <div class="choice-block"><img id="your-right-choice" src="${yourRightImg}"></div>
+                    <div class="choice-block"><img class="choice-img" id="your-right-choice" src="${yourRightImg}"></div>
                 </div>
                 <div id="separation"></div>
                 <div id="partner">
-                    <div class="choice-block"><img id="partner-left-choice" src="${partnerLeftImg}"></div>
+                    <div class="choice-block"><img clss="choice-img" id="partner-left-choice" src="${partnerLeftImg}"></div>
                     <p class="identifier" style="color: ${partnerColor};">PARTNER</p>
-                    <div class="choice-block"><img id="partner-right-choice" src="${partnerRightImg}"></div>
+                    <div class="choice-block"><img clss="choice-img" id="partner-right-choice" src="${partnerRightImg}"></div>
                 </div>`;
         }
         html += `</div>`;
