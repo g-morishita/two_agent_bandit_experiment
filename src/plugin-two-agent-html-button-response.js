@@ -115,6 +115,7 @@ export class PluginTwoAgentHtmlButtonResponse {
                 if (reward === 1) {
                     rewardImg.src = "images/reward.png";
                 }
+                rewardImg.style.margin = "30px";
                 img.insertAdjacentElement('afterend', rewardImg);
             }, waitingTime + 2000);
             setTimeout(this.end_trial, waitingTime + 3500);
