@@ -78,7 +78,7 @@ const createSingleAgentSession = (numTrials, currentSession) => {
 
 // Two-Agent Bandit
 const createTwoAgentSession = (numTrials, currentSession, alpha, beta) => {
-    const agent = new QLearner(alpha, beta, numArm); // later randomize alpha and beta.
+    const agent = new QLearner(alpha, beta, numArm);
 
     const images = choiceImages.slice(2 * currentSession, 2 * (currentSession + 1)).map(x => 'images/' + x);
     const trial = {
@@ -92,6 +92,8 @@ const createTwoAgentSession = (numTrials, currentSession, alpha, beta) => {
             data.alpha;
             data.beta = beta;
             // update the agent Q values
+            console.log(data.partnerResponse)
+            console.log(data.partnerReward)
             agent.updateQValues(data.partnerResponse, data.partnerReward);
             console.log("agent: qValues");
             console.log(agent.qValues);
@@ -188,13 +190,13 @@ const singlePracticeInstructions = {
     <p>Immediately after clicking the image, you will observe whether you get a reward or not.</p>
     <p>The goal of this task is to identify the more rewarding choice so that you will obtain as many rewards as possible</p>
     <p>This is a <b>practice session</b>, so it does not affect the payment.</p>
-    <p>Press Proceed button to proceed.</p></div>`,
+    <p>Please press Proceed button to proceed.</p></div>`,
     choices: ['Proceed'],
 };
 timeline.push(singlePracticeInstructions);
 
 createStartingSession("<b>Single Agent Practice</b> Session Starts in five seconds");
-createSingleAgentSession(config.practiceTimeHorizon, currentSession);
+createSingleAgentSession(2, currentSession);
 
 ///////////////////////// Two Agent Practice Session ////////////////////////////
 currentSession += 1;
@@ -210,13 +212,13 @@ const twoPracticeInstructions = {
         <p>You will also observe your partner's choice and its outcome a few seconds after the partner make a choice.</p>
         <p>Even if the partner makes a choice before your choice, you will observe the partner's choice and outcome 1 second after you choice.</p>
         <p>This is a <b>practice session</b>, so this session does not affect the payment.</p>
-        <p>Press Proceed button to proceed.</p></div>`,
+        <p>Please press Proceed button to proceed.</p></div>`,
     choices: ['Proceed']
 };
 timeline.push(twoPracticeInstructions);
 
 createStartingSession("<b>Two Agent Practice</b> Session Starts in five seconds");
-createTwoAgentSession(config.practiceTimeHorizon, currentSession);
+createTwoAgentSession(config.practiceTimeHorizon, currentSession, 0.1, 8);
 
 ///////////////////////// Single Agent Actual Session ////////////////////////////
 const actualSingleSessionInstructions = {
@@ -225,7 +227,7 @@ const actualSingleSessionInstructions = {
         <p>The practice sessions have finished. Next, the actual sessions will start.</p>
         <p>The first two sessions are a <b>single-agent bandit task</b> where there are just two images and no partner.</p>
         <p>If you have any question, let the experimenter know before you start the actual sessions.</p>
-        <p>Press Proceed Button to begin when you are ready</p></div>`,
+        <p>Please press Proceed Button to begin when you are ready</p></div>`,
     choices: ['Proceed']
 };
 timeline.push(actualSingleSessionInstructions);
@@ -242,7 +244,7 @@ const actualTwoSessionInstructions = {
     stimulus: `<div style="font-size: 30px; text-align: center; margin-top: 50px;">
         <p>The single-agent sessions have finished. Next, the two-agent sessions will start.</p>
         <p>You might wait for a few minutes until a matched partner finishes the previous session.</p>
-        <p>Press Proceed Button to begin when you are ready.</p></div>`,
+        <p>Please press Proceed Button to begin when you are ready.</p></div>`,
     choices: ['Proceed']
 };
 timeline.push(actualTwoSessionInstructions);
@@ -264,7 +266,7 @@ const end = {
     type: jsPsychInstructions,
     pages: [`<div style="font-size: 30px; text-align: center; margin-top: 50px;">
         <p>The experiment has finished. Thank you for participating in our experiment.</p>
-        <p>Please go outside and let the experimenter know that you finished all the sessions. </p>
+        <p>You can go out of the room and let the experimenter know that you finished all the sessions. </p>
         </div>`]
 }
 timeline.push(end);
