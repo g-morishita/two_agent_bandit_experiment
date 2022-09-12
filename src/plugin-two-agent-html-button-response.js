@@ -224,9 +224,9 @@ export class PluginTwoAgentHtmlButtonResponse {
                 </div>
                 <div id="separation"></div>
                 <div id="partner">
-                    <div class="choice-block"><img clss="choice-img" id="partner-left-choice" src="${partnerLeftImg}"></div>
+                    <div class="choice-block"><img class="choice-img" id="partner-left-choice" src="${partnerLeftImg}"></div>
                     <p class="identifier" style="color: ${partnerColor};">PARTNER</p>
-                    <div class="choice-block"><img clss="choice-img" id="partner-right-choice" src="${partnerRightImg}"></div>
+                    <div class="choice-block"><img class="choice-img" id="partner-right-choice" src="${partnerRightImg}"></div>
                 </div>`;
         }
         html += `</div>`;
