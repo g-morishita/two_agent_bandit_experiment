@@ -196,7 +196,7 @@ const singlePracticeInstructions = {
 timeline.push(singlePracticeInstructions);
 
 createStartingSession("<b>Single Agent Practice</b> Session Starts in five seconds");
-createSingleAgentSession(2, currentSession);
+createSingleAgentSession(config.practiceTimeHorizon, currentSession);
 
 ///////////////////////// Two Agent Practice Session ////////////////////////////
 currentSession += 1;
