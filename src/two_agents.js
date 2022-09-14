@@ -235,7 +235,7 @@ timeline.push(actualTwoSessionInstructions);
 
 for (let i = 0; i < 4; i++) {
     currentSession += 1;
-    createStartingSessionForTwoAgent(`Two Agent Session ${currentSession} Starts when a matched partner is ready. Note that a partner is randomly matched every session.`);
+    createStartingSessionForTwoAgent(`Two Agent Session ${currentSession - 1} Starts when a matched partner is ready. Note that a partner is randomly matched every session.`);
     createTwoAgentSession(config.timeHorizon, currentSession, alpha, betas[i]);
 }
 
