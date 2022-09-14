@@ -219,29 +219,14 @@ timeline.push(twoPracticeInstructions);
 createStartingSession("<b>Two Agent Practice</b> Session Starts in five seconds");
 createTwoAgentSession(config.practiceTimeHorizon, currentSession, 0.1, 8);
 
-///////////////////////// Single Agent Actual Session ////////////////////////////
-const actualSingleSessionInstructions = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `<div style="font-size: 30px; text-align: center; margin-top: 50px;">
-        <p>The practice sessions have finished. Next, the actual sessions will start.</p>
-        <p>The first two sessions are a <b>single-agent bandit task</b> where there are just two images and no partner.</p>
-        <p>If you have any question, let the experimenter know before you start the actual sessions.</p>
-        <p>Please press Proceed Button to begin when you are ready</p></div>`,
-    choices: ['Proceed']
-};
-timeline.push(actualSingleSessionInstructions);
-
-for (let i = 0; i < 2; i++) {
-    currentSession += 1;
-    createStartingSession(`Single Agent Session ${currentSession - 1} Starts in five seconds`);
-    createSingleAgentSession(config.timeHorizon, currentSession);
-}
 
 ///////////////////////// Two Agent Session////////////////////////////
 const actualTwoSessionInstructions = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `<div style="font-size: 30px; text-align: center; margin-top: 50px;">
-        <p>The single-agent sessions have finished. Next, the two-agent sessions will start.</p>
+        <p>The practice sessions have finished. Next, the actual sessions will start.</p>
+        <p>If you have any question, let the experimenter know before you start the actual sessions.</p>
+        <p>The next sessions will be two-agent task. There are four sessions in this part.</p>
         <p>You might wait for a few minutes until a matched partner finishes the previous session.</p>
         <p>Please press Proceed Button to begin when you are ready.</p></div>`,
     choices: ['Proceed']
@@ -250,8 +235,24 @@ timeline.push(actualTwoSessionInstructions);
 
 for (let i = 0; i < 4; i++) {
     currentSession += 1;
-    createStartingSessionForTwoAgent(`Two Agent Session ${currentSession - 3} Starts when a matched partner is ready. Note that a partner is randomly matched every session.`);
+    createStartingSessionForTwoAgent(`Two Agent Session ${currentSession} Starts when a matched partner is ready. Note that a partner is randomly matched every session.`);
     createTwoAgentSession(config.timeHorizon, currentSession, alpha, betas[i]);
+}
+
+///////////////////////// Single Agent Actual Session ////////////////////////////
+const actualSingleSessionInstructions = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<div style="font-size: 30px; text-align: center; margin-top: 50px;">
+        <p>There are two sessions of <b>single-agent bandit task</b> where there are just two images and no partner.</p>
+        <p>Please press Proceed Button to begin when you are ready</p></div>`,
+    choices: ['Proceed']
+};
+timeline.push(actualSingleSessionInstructions);
+
+for (let i = 0; i < 2; i++) {
+    currentSession += 1;
+    createStartingSession(`Single Agent Session ${currentSession - 5} Starts in five seconds`);
+    createSingleAgentSession(config.timeHorizon, currentSession);
 }
 
 // The end
@@ -265,8 +266,7 @@ const end = {
     type: jsPsychInstructions,
     pages: [`<div style="font-size: 30px; text-align: center; margin-top: 50px;">
         <p>The experiment has finished. Thank you for participating in our experiment.</p>
-        <p>Until all the participants finish the tasks, please stay in the booth.</p>
-        <p>The experimenters will let you know when all the participants finish all the tasks.</p>
+        <p>Please wait until the experimenter comes.</p>
         </div>`]
 }
 timeline.push(end);
